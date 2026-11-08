@@ -16,7 +16,7 @@ public class DoctorsController : Controller
     // GET: Doctors
     public async Task<IActionResult> Index()
     {
-        return View(await _context.Doctors.ToListAsync());
+        return View(await _context.Doctors.Include(d => d.Department).ToListAsync());
     }
 
     // GET: Doctors/Details/5
