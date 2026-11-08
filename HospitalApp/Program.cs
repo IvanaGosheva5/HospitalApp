@@ -1,6 +1,6 @@
 using HospitalApp.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
