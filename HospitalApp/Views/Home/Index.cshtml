@@ -1,8 +1,41 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Начало";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="text-center mt-5">
+    <h1 class="display-4">HospitalApp</h1>
+    <p class="lead">Система за записване на прегледи в болницата</p>
+    <hr />
+</div>
+
+<div class="container">
+    <div class="row text-center">
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Отделения</h5>
+                    <p class="card-text">Прегледай и управлявай отделенията в болницата.</p>
+                    <a asp-controller="Departments" asp-action="Index" class="btn btn-primary">Към отделенията</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Лекари</h5>
+                    <p class="card-text">Екипът ни — всеки лекар със своето отделение.</p>
+                    <a asp-controller="Doctors" asp-action="Index" class="btn btn-primary">Към лекарите</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Записвания</h5>
+                    <p class="card-text">Запиши час при лекар — датата винаги в бъдещето.</p>
+                    <a asp-controller="Appointments" asp-action="Index" class="btn btn-primary">Към записванията</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
