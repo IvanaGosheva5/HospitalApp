@@ -16,7 +16,8 @@ public class AppointmentsController : Controller
    
     public async Task<IActionResult> Index()
     {
-        var applicationDbContext = _context.Appointments.Include(a => a.Doctor);
+        var applicationDbContext = _context.Appointments.Include(a => a.Doctor)
+            .OrderBy(a => a.Date);
         return View(await applicationDbContext.ToListAsync());
     }
 
