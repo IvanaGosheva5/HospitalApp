@@ -24,13 +24,12 @@ public static class DbInitializer
             context.SaveChanges();
         }
 
-        if (!context.Doctors.Any())
+        if (!context.Appointments.Any())
         {
-            context.Doctors.AddRange(
-                new Doctor { FullName = "д-р Мария Петрова", Specialty = "Кардиолог", Email = "m.petrova@hospital.bg", Phone = "0888 123 456", DepartmentId = 1 },
-                new Doctor { FullName = "д-р Елена Стоянова", Specialty = "Невролог", Email = "e.stoyanova@hospital.bg", Phone = "0888 345 678", DepartmentId = 2 },
-                new Doctor { FullName = "д-р Георги Иванов", Specialty = "Ортопед", Email = "g.ivanov@hospital.bg", Phone = "0888 234 567", DepartmentId = 3 },
-                new Doctor { FullName = "д-р Иван Димитров", Specialty = "Изображителна диагностика", Email = "i.dimitrov@hospital.bg", Phone = "0888 456 789", DepartmentId = 4 }
+            context.Appointments.AddRange(
+                new Appointment { PatientName = "Георги Тодоров", PatientPhone = "0899 111 222", Date = DateTime.Now.AddDays(2).AddHours(10), Reason = "Преглед след болничен", DoctorId = 1 },
+                new Appointment { PatientName = "Мария Атанасова", PatientPhone = "0899 333 444", Date = DateTime.Now.AddDays(3).AddHours(11).AddMinutes(30), Reason = "Консултация", DoctorId = 2 },
+                new Appointment { PatientName = "Иван Стоилов", PatientPhone = "0899 555 666", Date = DateTime.Now.AddDays(5).AddHours(14), Reason = "Профилактичен преглед", DoctorId = 3 }
             );
             context.SaveChanges();
         }
