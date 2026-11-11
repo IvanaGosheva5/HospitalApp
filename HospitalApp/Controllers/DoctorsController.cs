@@ -28,7 +28,9 @@ public class DoctorsController : Controller
         }
 
         var doctor = await _context.Doctors
-            .FirstOrDefaultAsync(m => m.Id == id);
+    .Include(d => d.Department)
+    .Include(d => d.Appointments)
+    .FirstOrDefaultAsync(m => m.Id == id);
         if (doctor == null)
         {
             return NotFound();
