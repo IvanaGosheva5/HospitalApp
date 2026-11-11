@@ -120,7 +120,9 @@ public class DepartmentsController : Controller
         }
 
         var department = await _context.Departments
-            .FirstOrDefaultAsync(m => m.Id == id);
+     .Include(d => d.Doctors)
+     .FirstOrDefaultAsync(m => m.Id == id);
+
         if (department == null)
         {
             return NotFound();

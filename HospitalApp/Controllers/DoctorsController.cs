@@ -13,13 +13,13 @@ public class DoctorsController : Controller
         _context = context;
     }
 
-    // GET: Doctors
+ 
     public async Task<IActionResult> Index()
     {
         return View(await _context.Doctors.Include(d => d.Department).ToListAsync());
     }
 
-    // GET: Doctors/Details/5
+    
     public async Task<IActionResult> Details(int? id)
     {
         if (id == null)
@@ -39,7 +39,7 @@ public class DoctorsController : Controller
         return View(doctor);
     }
 
-    // GET: Doctors/Create
+    
     public IActionResult Create()
     {
         Console.WriteLine("=== GET CREATE ИЗВИКАН (нова версия на кода) ===");
@@ -48,7 +48,7 @@ public class DoctorsController : Controller
         return View();
     }
 
-    // POST: Doctors/Create
+    
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("Id,FullName,Specialty,Email,Phone,DepartmentId")] Doctor doctor)
@@ -66,7 +66,7 @@ public class DoctorsController : Controller
         return View(doctor);
     }
 
-    // GET: Doctors/Edit/5
+ 
     public async Task<IActionResult> Edit(int? id)
     {
         if (id == null)
@@ -83,7 +83,7 @@ public class DoctorsController : Controller
         return View(doctor);
     }
 
-    // POST: Doctors/Edit/5
+    
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int? id, [Bind("Id,FullName,Specialty,Email,Phone,DepartmentId")] Doctor doctor)
@@ -117,7 +117,7 @@ public class DoctorsController : Controller
         return View(doctor);
     }
 
-    // GET: Doctors/Delete/5
+  
     public async Task<IActionResult> Delete(int? id)
     {
         if (id == null)
@@ -135,12 +135,15 @@ public class DoctorsController : Controller
         return View(doctor);
     }
 
-    // POST: Doctors/Delete/5
+    // POST: Doctors/Delete/
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int? id)
     {
-        var doctor = await _context.Doctors.FindAsync(id);
+        var doctor = await _context.Doctors
+    .Include(d => d.Department)
+    .FirstOrDefaultAsync(m => m.Id == id);
+
         if (doctor != null)
         {
             _context.Doctors.Remove(doctor);

@@ -1,42 +1,48 @@
 @model HospitalApp.Models.Department
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Изтриване";
 }
 
-<h1>Изтриване на отделението</h1>
+<h1>Изтрий</h1>
 
 <h3>Сигурни ли сте, че искате да изтриете това отделение?</h3>
 <div>
-    <h4>HospitalApp.Models.Department</h4>
+    <h4>Отделение</h4>
     <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Doctors)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Doctors)
-        </dd>
-    </dl>
+    <table class="table table-striped w-auto">
+        <tr>
+            <th>Отделение</th>
+            <td>@Html.DisplayFor(model => model.Name)</td>
+        </tr>
+        <tr>
+            <th>Описание</th>
+            <td>@Html.DisplayFor(model => model.Description)</td>
+        </tr>
+        <tr>
+            <th>Лекари в отделението</th>
+            <td>
+                @if (Model.Doctors != null && Model.Doctors.Any())
+                {
+                    @(Model.Doctors.Count)
+                    <ul>
+                        @foreach (var doc in Model.Doctors)
+                        {
+                            <li>@doc.FullName</li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <span>Няма назначени лекари</span>
+                }
+            </td>
+        </tr>
+    </table>
+
     <form asp-action="Delete">
         <input type="hidden" asp-for="Id" />
         <input type="submit" value="Изтрий" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
+        <a asp-action="Index">Обратно към списъка</a>
     </form>
 </div>
