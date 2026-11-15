@@ -1,48 +1,54 @@
 @model HospitalApp.Models.Department
 
 @{
-    ViewData["Title"] = "Изтриване";
+    ViewData["Title"] = "Изтриване на отделение";
+    bool hasDoctors = Model.Doctors.Any();
 }
 
-<h1>Изтрий</h1>
+<h1>Изтриване на отделение</h1>
 
-<h3>Сигурни ли сте, че искате да изтриете това отделение?</h3>
-<div>
-    <h4>Отделение</h4>
-    <hr />
-    <table class="table table-striped w-auto">
-        <tr>
-            <th>Отделение</th>
-            <td>@Html.DisplayFor(model => model.Name)</td>
-        </tr>
-        <tr>
-            <th>Описание</th>
-            <td>@Html.DisplayFor(model => model.Description)</td>
-        </tr>
-        <tr>
-            <th>Лекари в отделението</th>
-            <td>
-                @if (Model.Doctors != null && Model.Doctors.Any())
-                {
-                    @(Model.Doctors.Count)
-                    <ul>
-                        @foreach (var doc in Model.Doctors)
-                        {
-                            <li>@doc.FullName</li>
-                        }
-                    </ul>
-                }
-                else
-                {
-                    <span>Няма назначени лекари</span>
-                }
-            </td>
-        </tr>
-    </table>
+@if (hasDoctors)
+{
+    <div class="alert alert-warning">
+        В отделението има лекари (@Model.Doctors.Count) и то не може да бъде изтрито. Първо преместете или изтрийте лекарите.
+    </div>
+}
+else
+{
+    <h3>Сигурни ли сте, че искате да изтриете това отделение?</h3>
+}
 
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Изтрий" class="btn btn-danger" /> |
-        <a asp-action="Index">Обратно към списъка</a>
-    </form>
-</div>
+<table class="table table-striped w-auto">
+    <tr>
+        <th>Отделение</th>
+        <td>@Model.Name</td>
+    </tr>
+    <tr>
+        <th>Описание</th>
+        <td>@Model.Description</td>
+    </tr>
+    <tr>
+        <th>Лекари в отделението</th>
+        <td>
+            @if (hasDoctors)
+            {
+                <ul class="mb-0">
+                    @foreach (var doctor in Model.Doctors)
+                    {
+                        <li>@doctor.FullName</li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <span>Няма назначени лекари</span>
+            }
+        </td>
+    </tr>
+</table>
+
+<form asp-action="Delete">
+    <input type="hidden" asp-for="Id" />
+    <input type="submit" value="Изтрий" class="btn btn-danger" disabled="@hasDoctors" /> |
+    <a asp-action="Index">Обратно към списъка</a>
+</form>
