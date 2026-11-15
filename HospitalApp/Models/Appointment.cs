@@ -7,7 +7,7 @@ public class Appointment
     public int Id { get; set; }
 
     [Required(ErrorMessage = "Името на пациента е задължително")]
-    [StringLength(100, MinimumLength = 2)]
+    [StringLength(100, MinimumLength = 2, ErrorMessage = "Името трябва да е между 2 и 100 символа")]
     [Display(Name = "Пациент")]
     public string PatientName { get; set; } = null!;
 
@@ -21,10 +21,11 @@ public class Appointment
     public DateTime Date { get; set; }
 
     [Required(ErrorMessage = "Причината за посещението е задължителна")]
-    [StringLength(300)]
+    [StringLength(300, MinimumLength = 3, ErrorMessage = "Причината трябва да е между 3 и 300 символа")]
     [Display(Name = "Причина за посещението")]
     public string Reason { get; set; } = null!;
 
+    [Required(ErrorMessage = "Изберете лекар")]
     [Display(Name = "Лекар")]
     public int DoctorId { get; set; }
 

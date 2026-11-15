@@ -7,12 +7,12 @@ public class Doctor
     public int Id { get; set; }
 
     [Required(ErrorMessage = "Името на лекаря е задължително")]
-    [StringLength(100, MinimumLength = 2)]
+    [StringLength(100, MinimumLength = 2, ErrorMessage = "Името трябва да е между 2 и 100 символа")]
     [Display(Name = "Три имена")]
     public string FullName { get; set; } = null!;
 
     [Required(ErrorMessage = "Специалността е задължителна")]
-    [StringLength(100)]
+    [StringLength(100, MinimumLength = 2, ErrorMessage = "Специалността трябва да е между 2 и 100 символа")]
     [Display(Name = "Специалност")]
     public string Specialty { get; set; } = null!;
 
@@ -26,6 +26,7 @@ public class Doctor
     [Display(Name = "Телефон")]
     public string Phone { get; set; } = null!;
 
+    [Required(ErrorMessage = "Изберете отделение")]
     [Display(Name = "Отделение")]
     public int DepartmentId { get; set; }
 

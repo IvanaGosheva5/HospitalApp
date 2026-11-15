@@ -1,6 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Numerics;
-
 namespace HospitalApp.Models;
 
 public class Department
