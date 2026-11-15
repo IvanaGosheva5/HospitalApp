@@ -4,6 +4,9 @@ using HospitalApp.Models;
 using HospitalApp.Data;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
+namespace HospitalApp.Controllers;
+
+
 public class AppointmentsController : Controller
 {
     private readonly ApplicationDbContext _context;

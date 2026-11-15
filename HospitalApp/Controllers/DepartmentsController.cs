@@ -1,8 +1,9 @@
-
+using HospitalApp.Data;
+using HospitalApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using HospitalApp.Models;
-using HospitalApp.Data;
+
+namespace HospitalApp.Controllers;
 
 public class DepartmentsController : Controller
 {
@@ -13,13 +14,15 @@ public class DepartmentsController : Controller
         _context = context;
     }
 
-    // GET: DEPARTMENTS
-    public async Task<IActionResult> Index()    
+    public async Task<IActionResult> Index()
     {
-        return View(await _context.Departments.ToListAsync());
+        var departments = await _context.Departments
+            .OrderBy(d => d.Name)
+            .ToListAsync();
+
+        return View(departments);
     }
 
-    // GET: DEPARTMENTS/Details/5
     public async Task<IActionResult> Details(int? id)
     {
         if (id == null)
@@ -27,9 +30,7 @@ public class DepartmentsController : Controller
             return NotFound();
         }
 
-        var department = await _context.Departments
-     .Include(d => d.Doctors)
-     .FirstOrDefaultAsync(m => m.Id == id);
+        var department = await GetWithDoctorsAsync(id.Value);
         if (department == null)
         {
             return NotFound();
@@ -38,29 +39,27 @@ public class DepartmentsController : Controller
         return View(department);
     }
 
-    // GET: DEPARTMENTS/Create
     public IActionResult Create()
     {
         return View();
     }
 
-    // POST: DEPARTMENTS/Create
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Id,Name,Description,Doctors")] Department department)
+    public async Task<IActionResult> Create([Bind("Name,Description")] Department department)
     {
-        if (ModelState.IsValid)
+        await ValidateNameAsync(department);
+
+        if (!ModelState.IsValid)
         {
-            _context.Add(department);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return View(department);
         }
-        return View(department);
+
+        _context.Add(department);
+        await _context.SaveChangesAsync();
+        return RedirectToAction(nameof(Index));
     }
 
-    // GET: DEPARTMENTS/Edit/5
     public async Task<IActionResult> Edit(int? id)
     {
         if (id == null)
@@ -73,45 +72,44 @@ public class DepartmentsController : Controller
         {
             return NotFound();
         }
+
         return View(department);
     }
 
-    // POST: DEPARTMENTS/Edit/5
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? id, [Bind("Id,Name,Description,Doctors")] Department department)
+    public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description")] Department department)
     {
         if (id != department.Id)
         {
             return NotFound();
         }
 
-        if (ModelState.IsValid)
+        await ValidateNameAsync(department);
+
+        if (!ModelState.IsValid)
         {
-            try
-            {
-                _context.Update(department);
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!DepartmentExists(department.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return RedirectToAction(nameof(Index));
+            return View(department);
         }
-        return View(department);
+
+        try
+        {
+            _context.Update(department);
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!DepartmentExists(department.Id))
+            {
+                return NotFound();
+            }
+
+            throw;
+        }
+
+        return RedirectToAction(nameof(Index));
     }
 
-    // GET: DEPARTMENTS/Delete/5
     public async Task<IActionResult> Delete(int? id)
     {
         if (id == null)
@@ -119,10 +117,7 @@ public class DepartmentsController : Controller
             return NotFound();
         }
 
-        var department = await _context.Departments
-     .Include(d => d.Doctors)
-     .FirstOrDefaultAsync(m => m.Id == id);
-
+        var department = await GetWithDoctorsAsync(id.Value);
         if (department == null)
         {
             return NotFound();
@@ -131,22 +126,45 @@ public class DepartmentsController : Controller
         return View(department);
     }
 
-    // POST: DEPARTMENTS/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int? id)
+    public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var department = await _context.Departments.FindAsync(id);
-        if (department != null)
+        var department = await GetWithDoctorsAsync(id);
+        if (department == null)
         {
-            _context.Departments.Remove(department);
+            return NotFound();
         }
 
+        if (department.Doctors.Any())
+        {
+            return View("Delete", department);
+        }
+
+        _context.Departments.Remove(department);
         await _context.SaveChangesAsync();
         return RedirectToAction(nameof(Index));
     }
 
-    private bool DepartmentExists(int? id)
+    private async Task ValidateNameAsync(Department department)
+    {
+        bool nameTaken = await _context.Departments
+            .AnyAsync(d => d.Name == department.Name && d.Id != department.Id);
+
+        if (nameTaken)
+        {
+            ModelState.AddModelError(nameof(Department.Name), "Вече има отделение с това име.");
+        }
+    }
+
+    private Task<Department?> GetWithDoctorsAsync(int id)
+    {
+        return _context.Departments
+            .Include(d => d.Doctors)
+            .FirstOrDefaultAsync(d => d.Id == id);
+    }
+
+    private bool DepartmentExists(int id)
     {
         return _context.Departments.Any(e => e.Id == id);
     }

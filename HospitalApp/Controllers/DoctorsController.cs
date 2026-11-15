@@ -1,8 +1,10 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using HospitalApp.Models;
 using HospitalApp.Data;
+using HospitalApp.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+
+namespace HospitalApp.Controllers;
 
 public class DoctorsController : Controller
 {
@@ -13,13 +15,16 @@ public class DoctorsController : Controller
         _context = context;
     }
 
- 
     public async Task<IActionResult> Index()
     {
-        return View(await _context.Doctors.Include(d => d.Department).ToListAsync());
+        var doctors = await _context.Doctors
+            .Include(d => d.Department)
+            .OrderBy(d => d.FullName)
+            .ToListAsync();
+
+        return View(doctors);
     }
 
-    
     public async Task<IActionResult> Details(int? id)
     {
         if (id == null)
@@ -27,10 +32,7 @@ public class DoctorsController : Controller
             return NotFound();
         }
 
-        var doctor = await _context.Doctors
-    .Include(d => d.Department)
-    .Include(d => d.Appointments)
-    .FirstOrDefaultAsync(m => m.Id == id);
+        var doctor = await GetFullDoctorAsync(id.Value);
         if (doctor == null)
         {
             return NotFound();
@@ -39,34 +41,29 @@ public class DoctorsController : Controller
         return View(doctor);
     }
 
-    
     public IActionResult Create()
     {
-        Console.WriteLine("=== GET CREATE ИЗВИКАН (нова версия на кода) ===");
-
-        ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name");
+        LoadDepartments();
         return View();
     }
 
-    
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Id,FullName,Specialty,Email,Phone,DepartmentId")] Doctor doctor)
+    public async Task<IActionResult> Create([Bind("FullName,Specialty,Email,Phone,DepartmentId")] Doctor doctor)
     {
-      
+        await ValidateDoctorAsync(doctor);
 
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
-            _context.Add(doctor);
-            await _context.SaveChangesAsync();
-            Console.WriteLine("=== ЗАПИСАНО В БАЗАТА УСПЕШНО ===");
-            return RedirectToAction(nameof(Index));
+            LoadDepartments();
+            return View(doctor);
         }
-        ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name");
-        return View(doctor);
+
+        _context.Add(doctor);
+        await _context.SaveChangesAsync();
+        return RedirectToAction(nameof(Index));
     }
 
- 
     public async Task<IActionResult> Edit(int? id)
     {
         if (id == null)
@@ -79,45 +76,46 @@ public class DoctorsController : Controller
         {
             return NotFound();
         }
-        ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name");
+
+        LoadDepartments();
         return View(doctor);
     }
 
-    
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? id, [Bind("Id,FullName,Specialty,Email,Phone,DepartmentId")] Doctor doctor)
+    public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,Specialty,Email,Phone,DepartmentId")] Doctor doctor)
     {
         if (id != doctor.Id)
         {
             return NotFound();
         }
 
-        if (ModelState.IsValid)
+        await ValidateDoctorAsync(doctor);
+
+        if (!ModelState.IsValid)
         {
-            try
-            {
-                _context.Update(doctor);
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!DoctorExists(doctor.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return RedirectToAction(nameof(Index));
+            LoadDepartments();
+            return View(doctor);
         }
-        ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name");
-        return View(doctor);
+
+        try
+        {
+            _context.Update(doctor);
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!DoctorExists(doctor.Id))
+            {
+                return NotFound();
+            }
+
+            throw;
+        }
+
+        return RedirectToAction(nameof(Index));
     }
 
-  
     public async Task<IActionResult> Delete(int? id)
     {
         if (id == null)
@@ -125,8 +123,7 @@ public class DoctorsController : Controller
             return NotFound();
         }
 
-        var doctor = await _context.Doctors
-            .FirstOrDefaultAsync(m => m.Id == id);
+        var doctor = await GetFullDoctorAsync(id.Value);
         if (doctor == null)
         {
             return NotFound();
@@ -135,25 +132,55 @@ public class DoctorsController : Controller
         return View(doctor);
     }
 
-    // POST: Doctors/Delete/
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int? id)
+    public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var doctor = await _context.Doctors
-    .Include(d => d.Department)
-    .FirstOrDefaultAsync(m => m.Id == id);
-
-        if (doctor != null)
+        var doctor = await GetFullDoctorAsync(id);
+        if (doctor == null)
         {
-            _context.Doctors.Remove(doctor);
+            return NotFound();
         }
 
+        if (doctor.Appointments.Any())
+        {
+            return View("Delete", doctor);
+        }
+
+        _context.Doctors.Remove(doctor);
         await _context.SaveChangesAsync();
         return RedirectToAction(nameof(Index));
     }
 
-    private bool DoctorExists(int? id)
+    private void LoadDepartments()
+    {
+        ViewData["DepartmentId"] = new SelectList(_context.Departments.OrderBy(d => d.Name), "Id", "Name");
+    }
+
+    private async Task ValidateDoctorAsync(Doctor doctor)
+    {
+        bool departmentExists = await _context.Departments.AnyAsync(d => d.Id == doctor.DepartmentId);
+        if (!departmentExists)
+        {
+            ModelState.AddModelError(nameof(Doctor.DepartmentId), "Изберете съществуващо отделение.");
+        }
+
+        bool emailTaken = await _context.Doctors.AnyAsync(d => d.Email == doctor.Email && d.Id != doctor.Id);
+        if (emailTaken)
+        {
+            ModelState.AddModelError(nameof(Doctor.Email), "Вече има лекар с този имейл.");
+        }
+    }
+
+    private Task<Doctor?> GetFullDoctorAsync(int id)
+    {
+        return _context.Doctors
+            .Include(d => d.Department)
+            .Include(d => d.Appointments)
+            .FirstOrDefaultAsync(d => d.Id == id);
+    }
+
+    private bool DoctorExists(int id)
     {
         return _context.Doctors.Any(e => e.Id == id);
     }
