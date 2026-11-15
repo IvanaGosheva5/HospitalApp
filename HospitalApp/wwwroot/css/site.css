@@ -1,18 +1,29 @@
+:root {
+    --brand: #0f766e;
+    --brand-dark: #115e59;
+    --brand-light: #ccfbf1;
+    --ink: #134e4a;
+}
+
 html {
     font-size: 14px;
-    position: relative;
-    min-height: 100%;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
 }
 
 body {
-    margin-bottom: 60px;
     background-color: #f4f7f8;
     font-family: 'Segoe UI', Tahoma, sans-serif;
+    color: #1f2937;
 }
 
-/* Меню — медицинско тъмнозелено */
+/* Меню */
 .navbar {
-    background-color: #0f766e !important;
+    background-color: var(--brand) !important;
 }
 
     .navbar .nav-link,
@@ -20,12 +31,49 @@ body {
         color: #ffffff !important;
     }
 
-        .navbar .nav-link:hover {
-            color: #a7f3d0 !important;
+    .navbar .nav-link {
+        border-radius: 0.375rem;
+        padding: 0.5rem 0.75rem !important;
+    }
+
+        .navbar .nav-link:hover,
+        .navbar .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.15);
         }
 
-/* Карти — лек ефект при посочване */
+/* Заглавия */
+h1, h2, h3, h4 {
+    color: var(--ink);
+}
+
+h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+@media (min-width: 768px) {
+    h1 {
+        font-size: 2.25rem;
+    }
+}
+
+.page-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+    .page-header h1 {
+        margin: 0;
+    }
+
+/* Карти */
 .card {
+    border: none;
+    border-radius: 0.75rem;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -34,35 +82,75 @@ body {
         box-shadow: 0 8px 20px rgba(15, 118, 110, 0.18);
     }
 
-/* Бутони — в същата палитра */
+/* Бутони */
 .btn-primary {
-    background-color: #0f766e;
-    border-color: #0f766e;
+    background-color: var(--brand);
+    border-color: var(--brand);
 }
 
-    .btn-primary:hover {
-        background-color: #115e59;
-        border-color: #115e59;
+    .btn-primary:hover,
+    .btn-primary:focus {
+        background-color: var(--brand-dark);
+        border-color: var(--brand-dark);
     }
 
-/* Заглавия */
-h1, h2, h3, h4 {
-    color: #134e4a;
+.btn-outline-primary {
+    color: var(--brand);
+    border-color: var(--brand);
 }
 
-/* Таблици — тъмнозелена глава */
-.table thead th {
-    background-color: #0f766e;
-    color: #ffffff;
+    .btn-outline-primary:hover {
+        background-color: var(--brand);
+        border-color: var(--brand);
+        color: #ffffff;
+    }
+
+/* Таблици */
+.table-card {
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+    .table thead th {
+        background-color: var(--brand);
+        color: #ffffff;
+        white-space: nowrap;
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+
+/* Форми */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 0.2rem rgba(15, 118, 110, 0.2);
 }
 
 /* Футър */
 .footer {
-    background-color: #0f766e !important;
+    position: static !important;
+    line-height: normal !important;
+    white-space: normal !important;
+    background-color: var(--brand) !important;
     color: #ffffff !important;
-    border-top: none;
+    border-top: none !important;
 }
 
     .footer a {
-        color: #a7f3d0;
+        color: var(--brand-light);
     }
+
+/* Телефон */
+@media (max-width: 575.98px) {
+    .btn-actions .btn {
+        padding: 0.25rem 0.5rem;
+    }
+}
